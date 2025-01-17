@@ -12,12 +12,17 @@ public static class SummaryExtension
 {
     public static async ValueTask OutputSummaryToLog(this BenchmarkDotNet.Reports.Summary summary, ITestOutputHelper outputHelper, CancellationToken cancellationToken = default)
     {
-        string[] logs = await File.ReadAllLinesAsync(summary.LogFilePath, cancellationToken).ConfigureAwait(false);
+        await using var stream = new FileStream(summary.LogFilePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
+        using var reader = new StreamReader(stream);
 
-        for (var i = 0; i < logs.Length; i++)
+        while (!reader.EndOfStream)
         {
-            string log = logs[i];
-            outputHelper.WriteLine(log);
+            string? log = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+
+            if (log is not null)
+            {
+                outputHelper.WriteLine(log);
+            }
         }
     }
 }
