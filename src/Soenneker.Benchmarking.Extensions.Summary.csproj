@@ -43,6 +43,6 @@
 
     <ItemGroup>
       <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
-      <PackageReference Include="xunit.v3.core" Version="1.0.1" />
+      <PackageReference Include="xunit.v3.core" Version="1.1.0" />
     </ItemGroup>
 </Project>
