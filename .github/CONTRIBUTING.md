@@ -1,4 +1,4 @@
-# Contributing to Soenneker.Benchmarking.Extensions.Summary
+﻿# Contributing to Soenneker.Benchmarking.Extensions.Summary
 
 We're excited that you're interested in contributing!
 
