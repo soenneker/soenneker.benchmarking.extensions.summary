@@ -14,7 +14,7 @@
         <AssemblyName>Soenneker.Benchmarking.Extensions.Summary</AssemblyName>
         <PackageId>Soenneker.Benchmarking.Extensions.Summary</PackageId>
         <PackageTags>benchmarking extensions summary benchmark benchmarkdotnet performance summaryextension extension csharp dotnet c# .net xunit</PackageTags>
-        <Copyright>Copyright © 2025 Jake Soenneker</Copyright>
+        <Copyright>Copyright © 2025-2026 Jake Soenneker</Copyright>
         <Authors>Jake Soenneker</Authors>
         <Company>https://soenneker.com</Company>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
