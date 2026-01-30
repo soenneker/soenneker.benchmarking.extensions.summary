@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,19 +11,47 @@ namespace Soenneker.Benchmarking.Extensions.Summary;
 /// </summary>
 public static class SummaryExtension
 {
-    public static async ValueTask OutputSummaryToLog(this BenchmarkDotNet.Reports.Summary summary, ITestOutputHelper outputHelper, CancellationToken cancellationToken = default)
+    public static async ValueTask OutputSummaryToLog(
+        this BenchmarkDotNet.Reports.Summary summary,
+        ITestOutputHelper outputHelper,
+        CancellationToken cancellationToken = default)
     {
-        await using var stream = new FileStream(summary.LogFilePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
+        if (summary is null) throw new ArgumentNullException(nameof(summary));
+        if (outputHelper is null) throw new ArgumentNullException(nameof(outputHelper));
+
+        string? path = summary.LogFilePath;
+
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+        {
+            outputHelper.WriteLine("BenchmarkDotNet log file path was null/empty or the file does not exist.");
+
+            if (!string.IsNullOrWhiteSpace(path))
+                outputHelper.WriteLine($"LogFilePath: {path}");
+            return;
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // Open with async + sequential scan (helpful on Windows; harmless elsewhere)
+        await using var stream = new FileStream(
+            path,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.ReadWrite,
+            bufferSize: 64 * 1024,
+            options: FileOptions.Asynchronous | FileOptions.SequentialScan);
+
         using var reader = new StreamReader(stream);
 
-        while (!reader.EndOfStream)
-        {
-            string? log = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+        string content = await reader.ReadToEndAsync(cancellationToken).NoSync();
 
-            if (log is not null)
-            {
-                outputHelper.WriteLine(log);
-            }
+        if (content.Length == 0)
+        {
+            outputHelper.WriteLine("(BenchmarkDotNet log file was empty.)");
+            return;
         }
+
+        // xUnit output is slow; one call is usually much faster than thousands.
+        outputHelper.WriteLine(content);
     }
 }
