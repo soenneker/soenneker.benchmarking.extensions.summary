@@ -43,7 +43,7 @@ public static class SummaryExtension
 
         using var reader = new StreamReader(stream);
 
-        string content = await reader.ReadToEndAsync(cancellationToken).NoSync();
+        string content = await reader.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
 
         if (content.Length == 0)
         {
