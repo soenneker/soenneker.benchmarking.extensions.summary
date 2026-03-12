@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Soenneker.Benchmarking.Extensions.Summary.csproj" />
+        <ProjectReference Include="..\..\src\Soenneker.Benchmarking.Extensions.Summary\Soenneker.Benchmarking.Extensions.Summary.csproj" />
     </ItemGroup>
 
     <ItemGroup>
