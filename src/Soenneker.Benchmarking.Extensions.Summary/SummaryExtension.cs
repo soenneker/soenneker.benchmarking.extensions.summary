@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace Soenneker.Benchmarking.Extensions.Summary;
 
@@ -11,34 +10,31 @@ namespace Soenneker.Benchmarking.Extensions.Summary;
 /// </summary>
 public static class SummaryExtension
 {
-    public static async ValueTask OutputSummaryToLog(
-        this BenchmarkDotNet.Reports.Summary summary,
-        ITestOutputHelper outputHelper,
-        CancellationToken cancellationToken = default)
+    public static async ValueTask OutputSummaryToLog(this BenchmarkDotNet.Reports.Summary summary, CancellationToken cancellationToken = default)
     {
-        if (summary is null) throw new ArgumentNullException(nameof(summary));
-        if (outputHelper is null) throw new ArgumentNullException(nameof(outputHelper));
+        if (summary is null)
+            throw new ArgumentNullException(nameof(summary));
+
+        TestContext? context = TestContext.Current;
+
+        if (context is null)
+            return;
 
         string? path = summary.LogFilePath;
 
         if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
         {
-            outputHelper.WriteLine("BenchmarkDotNet log file path was null/empty or the file does not exist.");
+            context.Output.WriteLine("BenchmarkDotNet log file path was null/empty or the file does not exist.");
 
             if (!string.IsNullOrWhiteSpace(path))
-                outputHelper.WriteLine($"LogFilePath: {path}");
+                context.Output.WriteLine($"LogFilePath: {path}");
+
             return;
         }
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        // Open with async + sequential scan (helpful on Windows; harmless elsewhere)
-        await using var stream = new FileStream(
-            path,
-            FileMode.Open,
-            FileAccess.Read,
-            FileShare.ReadWrite,
-            bufferSize: 64 * 1024,
+        await using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, bufferSize: 64 * 1024,
             options: FileOptions.Asynchronous | FileOptions.SequentialScan);
 
         using var reader = new StreamReader(stream);
@@ -47,11 +43,10 @@ public static class SummaryExtension
 
         if (content.Length == 0)
         {
-            outputHelper.WriteLine("(BenchmarkDotNet log file was empty.)");
+            context.Output.WriteLine("(BenchmarkDotNet log file was empty.)");
             return;
         }
 
-        // xUnit output is slow; one call is usually much faster than thousands.
-        outputHelper.WriteLine(content);
+        context.Output.WriteLine(content);
     }
 }
