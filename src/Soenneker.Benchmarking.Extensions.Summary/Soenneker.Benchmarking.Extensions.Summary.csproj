@@ -45,6 +45,6 @@
 
     <ItemGroup>
         <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
-        <PackageReference Include="TUnit.Core" Version="1.37.24" />
+        <PackageReference Include="TUnit.Core" Version="1.37.35" />
     </ItemGroup>
 </Project>
