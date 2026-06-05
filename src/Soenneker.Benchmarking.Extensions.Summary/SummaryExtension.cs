@@ -10,6 +10,12 @@ namespace Soenneker.Benchmarking.Extensions.Summary;
 /// </summary>
 public static class SummaryExtension
 {
+    /// <summary>
+    /// Executes the output summary to log operation.
+    /// </summary>
+    /// <param name="summary">The summary.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public static async ValueTask OutputSummaryToLog(this BenchmarkDotNet.Reports.Summary summary, CancellationToken cancellationToken = default)
     {
         if (summary is null)
