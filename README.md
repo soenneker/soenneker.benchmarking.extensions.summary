@@ -5,35 +5,42 @@
 
 # Soenneker.Benchmarking.Extensions.Summary
 
-Providing helper methods for BenchmarkDotNet's Summary object.
+A BenchmarkDotNet `Summary` extension that copies the generated benchmark log into the current TUnit test output.
 
-## Install
+## Installation
 
 ```bash
 dotnet add package Soenneker.Benchmarking.Extensions.Summary
 ```
 
-## Quick start
+## Usage in a TUnit test
 
 ```csharp
+using BenchmarkDotNet.Running;
 using Soenneker.Benchmarking.Extensions.Summary;
 
-BenchmarkDotNet.Reports.Summary summary = /* obtain from your application */;
-await summary.OutputSummaryToLog(default);
+public sealed class BenchmarkTests
+{
+    [Test]
+    public async Task Run_benchmarks()
+    {
+        BenchmarkDotNet.Reports.Summary summary =
+            BenchmarkRunner.Run<SerializationBenchmarks>();
+
+        await summary.OutputSummaryToLog();
+    }
+}
 ```
 
-Writes the benchmark summary and key statistics to the log.
+`OutputSummaryToLog()` reads `Summary.LogFilePath` and writes the full file contents to `TestContext.Current.Output`. This makes BenchmarkDotNet output visible in the TUnit report and CI test logs.
 
-## What you get
+## Behavior
 
-- `SummaryExtension` — Providing helper methods for BenchmarkDotNet's Summary object.
+- Outside an active TUnit test, `TestContext.Current` is `null` and the method returns without output.
+- A missing, blank, or nonexistent `LogFilePath` writes a diagnostic message instead of throwing.
+- An empty log file writes an explicit empty-file message.
+- The file is opened with shared read access, so BenchmarkDotNet or another process can still hold it open.
+- Cancellation is checked before and during the asynchronous file read.
+- Passing a null `Summary` throws `ArgumentNullException`.
 
-## API at a glance
-
-| API | What it does | Result / important behavior |
-| --- | --- | --- |
-| `SummaryExtension.OutputSummaryToLog(summary, cancellationToken)` | Writes the benchmark summary and key statistics to the log. | A task that completes when the output summary to log operation is complete. |
-
-## Practical notes
-
-- Cancellation stops pending work; it does not undo work that has already completed.
+BenchmarkDotNet logs can contain machine, runtime, path, and benchmark metadata. Review that content before publishing TUnit output from a public CI job.
