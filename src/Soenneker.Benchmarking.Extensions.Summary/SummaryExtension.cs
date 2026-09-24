@@ -1,3 +1,6 @@
+using Soenneker.Utils.MemoryStream;
+using Microsoft.Extensions.Logging.Abstractions;
+using Soenneker.Utils.File.Abstract;
 using System;
 using System.IO;
 using System.Threading;
@@ -10,6 +13,8 @@ namespace Soenneker.Benchmarking.Extensions.Summary;
 /// </summary>
 public static class SummaryExtension
 {
+    private static readonly IFileUtil _fileUtil = new Soenneker.Utils.File.FileUtil(NullLogger<Soenneker.Utils.File.FileUtil>.Instance, new MemoryStreamUtil());
+
     /// <summary>
     /// Writes the benchmark summary and key statistics to the log.
     /// </summary>
@@ -28,7 +33,7 @@ public static class SummaryExtension
 
         string? path = summary.LogFilePath;
 
-        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+        if (string.IsNullOrWhiteSpace(path) || !await _fileUtil.Exists(path, cancellationToken))
         {
             context.Output.WriteLine("BenchmarkDotNet log file path was null/empty or the file does not exist.");
 
