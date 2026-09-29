@@ -46,7 +46,7 @@
 
     <ItemGroup>
         <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
-        <PackageReference Include="TUnit.Core" Version="1.70.1" />
+        <PackageReference Include="TUnit.Core" Version="1.71.0" />
     </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Soenneker.Utils.File" Version="4.0.2289" />
